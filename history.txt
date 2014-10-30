@@ -1,0 +1,22 @@
+# wmsReaderJS
+
+TODO:
+    - Etudier problème de pagination avec Uikit v2.10.0
+
+
+## Version. 0.01:
+
+30/10/14:
+    - Mise en place de la pagination
+    - Ajout de la possibilité d'effectuer des recherches sur le titre, le nom ou le résumé d'un layer
+    - Ajout d'une fenêtre de dialogue pour afficheir les détails d'un layer
+
+29/10/14:
+    - Récupération du Extent dans le GetCapabilities pour générer le GetMap de la miniature
+
+00/10/14:
+    - Ajout d'un bouton pour visualiser la description du service web via une boîte de dialogue
+    - Ajout d'un GetMap pour générer une miniature
+        
+02/10/14:
+    - Initialisation du projet à partir de cswReaderJS

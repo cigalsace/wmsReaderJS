@@ -1,0 +1,55 @@
+http://www.cigalsace.org/geoserver/cigal/wms?REQUEST=GetCapabilities
+WMS_Capabilities 
+    Service
+        Name
+        Title
+        Abstract
+        KeywordList
+            Keyword
+        OnlineResource@xlink:href
+        ContactInformation
+            ContactPersonPrimary
+                ContactPerson
+                ContactOrganization
+            ContactPosition
+            ContactAddress
+                AddressType
+                Address
+                City
+                StateOrProvince
+                PostCode
+                Country
+            ContactVoiceTelephone
+            ContactFacsimileTelephone
+            ContactElectronicMailAddress
+        Fees
+        AccessConstraints
+    Capability
+        Layer
+            Title
+            Abstract
+            CRS
+            EX_GeographicBoundingBox
+                westBoundLongitude
+                eastBoundLongitude
+                southBoundLatitude
+                northBoundLatitude
+            BoundingBox@CRS / @minx / @miny / @maxx / @maxy
+            Layer
+                Name
+                Title
+                Abstract
+                CRS
+                EX_GeographicBoundingBox
+                    westBoundLongitude
+                    eastBoundLongitude
+                    southBoundLatitude
+                    northBoundLatitude
+                BoundingBox@CRS / @minx / @miny / @maxx / @maxy
+                MetadataURL 
+                    Format
+                    OnlineResource@xlink:href
+                
+                
+$URLShort."?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&LAYERS=".$Layer->Name."&STYLES=&SRS=".$SRS."&WIDTH=150&HEIGHT=150&FORMAT=image/png";
+

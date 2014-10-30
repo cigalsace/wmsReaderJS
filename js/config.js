@@ -1,0 +1,183 @@
+//$( document ).ready(function() {
+
+    // Lien vers le serveur de récupération des flux (pb de cross domain)
+    var server_url = './server/index.php'; // "false" pour un accès directe à la page sans passer par le script serveur application hébergée sur le serveur du flux CSW.
+
+    // Liste des flux CSW disponibles
+    var wms_list = {
+        //csw: '',
+        wms: [ {
+            id: 0,
+            title: 'WMS CIGAL',
+            description: 'Flux WMS du serveur CIGAL.',
+            url: 'http://www.cigalsace.org/geoserver/cigal/wms',
+            service: 'WMS',
+            request: 'GetCapabilities',
+            version: '1.3.0'
+        }, {
+            id: 1,
+            title: 'WFS CIGAL',
+            description: 'Flux WFS du serveur CIGAL.',
+            url: 'http://www.cigalsace.org/geoserver/cigal/wfs',
+            service: 'WFS',
+            request: 'GetCapabilities',
+            version: '2.0.0'
+        }, {
+            id: 2,
+            title: 'WMS Département du Bas-Rhin',
+            description: 'Flux WMS du Département du Bas-Rhin.',
+            url: 'http://www.cigalsace.org/geoserver/CG67/wms',
+            service: 'WMS',
+            request: 'GetCapabilities',
+            version: '1.3.0'
+        } ]
+    };
+
+    // Configuration de l'application
+    var app = {
+        title: 'wmsReaderJS',
+        name: 'wmsReaderJS',
+        version: 0.01
+    };
+
+    // Configuration par défaut de l'url du WMS
+    var wms_url = '';
+    if (wms_list.wms) {
+        wms_url = wms_list.wms[0].url;
+        wms_service = wms_list.wms[0].service;
+        wms_request = wms_list.wms[0].request;
+        wms_version = wms_list.wms[0].version;
+    }
+    var wms_config = {
+        //csw_id: 0,
+        //csw_url: csw_list.csw[0].url,
+        url: wms_url,
+        service: wms_service,
+        request: wms_request,
+        version: wms_version,
+        maxrecords: 10,
+        startposition: 1,
+        currentpage: 1,
+        constraint: ''
+    };
+
+    // Lien vers le lecteur de fiche de métadonnées
+    /*
+    var mdReader = {
+        url: 'http://www.cigalsace.net/mdReaderJS/0.01/index.html',
+        //url: false,
+        id: ''
+    };
+    */
+    
+    
+    /* Ne rien modifier en dessous de cette ligne */    
+    // Initialisation de la variable gloable envoyée au template pour construction de la page
+    var data = {
+        //currentPage: 1,
+        wms_list: wms_list,
+        app: app,
+        wms_url: '',
+        view: 'gridView'
+    };
+    
+    //var main_url = window.location.search.substring(1);
+    var params = getParamsURL(window.location.search.substring(1));
+    var param_wms = params['wms'];
+
+    var xpaths = {
+        // Service
+        Service_Name: 'WMS_Capabilities>Service>Name',
+        Service_Title: 'WMS_Capabilities>Service>Title',
+        Service_Abstract: 'WMS_Capabilities>Service>Abstract',
+        // Service_KeywordList: 'WMS_Capabilities>Service>KeywordList',
+        Service_Keyword: 'WMS_Capabilities>Service>KeywordList>Keyword',
+        // Layer_vocabulary: 'WMS_Capabilities>Service>KeywordList>Keyword@vocabulary',
+        Service_OnlineResource: 'WMS_Capabilities>Service>OnlineResource',
+        // Contact
+        Service_ContactPerson: 'WMS_Capabilities>Service>ContactInformation>ContactPersonPrimary>ContactPerson',
+        Service_ContactOrganization: 'WMS_Capabilities>Service>ContactInformation>ContactPersonPrimary>ContactOrganization',
+        Service_ContactPosition: 'WMS_Capabilities>Service>ContactInformation>ContactPosition',
+        Service_AddressType: 'WMS_Capabilities>Service>ContactInformation>ContactAddress>AddressType',
+        Service_Address: 'WMS_Capabilities>Service>ContactInformation>ContactAddress>Address',
+        Service_City: 'WMS_Capabilities>Service>ContactInformation>ContactAddress>City',
+        Service_StateOrProvince: 'WMS_Capabilities>Service>ContactInformation>ContactAddress>StateOrProvince',
+        Service_PostCode: 'WMS_Capabilities>Service>ContactInformation>ContactAddress>PostCode',
+        Service_Country: 'WMS_Capabilities>Service>ContactInformation>ContactAddress>Country',
+        Service_ContactVoiceTelephone: 'WMS_Capabilities>Service>ContactInformation>ContactVoiceTelephone',
+        Service_ContactFacsimileTelephone: 'WMS_Capabilities>Service>ContactInformation>ContactFacsimileTelephone',
+        Service_ContactElectronicMailAddress: 'WMS_Capabilities>Service>ContactInformation>ContactElectronicMailAddress',
+        Service_Fees: 'WMS_Capabilities>Service>Fees',
+        Service_AccessConstraints: 'WMS_Capabilities>Service>AccessConstraints',
+        
+        Capability_GetMapFormat: 'WMS_Capabilities>Capability>Request>GetMap>Format', // image/png / image/gif / image/jpeg
+        Capability_GetMapURL: 'Capability>Request>GetMap>DCPType>HTTP>Get>OnlineResource',
+        
+        Capability_Title: 'WMS_Capabilities>Capability>Layer>Title',
+            Capability_Abstract: 'WMS_Capabilities>Capability>Layer>Abstract',
+            Capability_CRS: 'WMS_Capabilities>Capability>Layer>CRS',
+            Capability_EX_GeographicBoundingBox: 'WMS_Capabilities>Capability>Layer>EX_GeographicBoundingBox',
+                Capability_westBoundLongitude: 'WMS_Capabilities>Capability>Layer>EX_GeographicBoundingBox>westBoundLongitude',
+                Capability_eastBoundLongitude: 'WMS_Capabilities>Capability>Layer>EX_GeographicBoundingBox>eastBoundLongitude',
+                Capability_southBoundLatitude: 'WMS_Capabilities>Capability>Layer>EX_GeographicBoundingBox>southBoundLatitude',
+                Capability_northBoundLatitude: 'WMS_Capabilities>Capability>Layer>EX_GeographicBoundingBox>northBoundLatitude',
+            //Capability_BoundingBox: 'Capability>Layer>BoundingBox@CRS / @minx / @miny / @maxx / @maxy',
+            //Capability_AuthorityURL: 'Capability>Layer>AuthorityURL@name',
+            //Capability_OnlineResource: 'Capability>Layer>AuthorityURL@name>OnlineResource@xlink:href',
+            Layers: 'WMS_Capabilities>Capability>Layer>Layer',
+                Layer_Name: 'Layer>Name',
+                Layer_Title: 'Layer>Title',
+                Layer_Abstract: 'Layer>Abstract',
+                Layer_Keyword: 'Layer>KeywordList>Keyword',
+                Layer_vocabulary: 'Layer>KeywordList>Keyword@vocabulary',
+                Layer_CRS: 'Layer>CRS',
+                //Layer_EX_GeographicBoundingBox: 'Layer>EX_GeographicBoundingBox',
+                    Layer_westBoundLongitude: 'Layer>EX_GeographicBoundingBox>westBoundLongitude',
+                    Layer_eastBoundLongitude: 'Layer>EX_GeographicBoundingBox>eastBoundLongitude',
+                    Layer_southBoundLatitude: 'Layer>EX_GeographicBoundingBox>southBoundLatitude',
+                    Layer_northBoundLatitude: 'Layer>EX_GeographicBoundingBox>northBoundLatitude',
+                //Layer_BoundingBox: 'Capability>Layer>Layer>BoundingBox@CRS / @minx / @miny / @maxx / @maxy',
+                Layer_MinScaleDenominator: 'Layer>MinScaleDenominator',
+                Layer_MaxScaleDenominator: 'Layer>MaxScaleDenominator',
+
+                // Liste
+                Layer_MetadataURL: 'Layer>MetadataURL',
+                    Layer_Format: 'Layer>MetadataURL>Format',
+                    Layer_OnlineResource: 'Layer>MetadataURL>OnlineResource',
+                Layer_AttributionTitle: 'Layer>Attribution>Title',
+                Layer_AttributionOnlineResource: 'Layer>Attribution>OnlineResource',
+                Layer_AttributionLogoURL_height: 'Layer>Attribution>LogoURL@height',
+                Layer_AttributionLogoURL_width: 'Layer>Attribution>LogoURL@width',
+                Layer_AttributionLogoURL_Format: 'Layer>Attribution>LogoURL>Format',
+                Layer_AttributionLogoURL_OnlineResource: 'Layer>Attribution>LogoURL>OnlineResource',
+                //liste
+                AuthorityURL: 'Layer>AuthorityURL',
+                //AuthorityURL_name: 'AuthorityURL@name',
+                AuthorityURL_OnlineResource: 'Layer>AuthorityURL>OnlineResource@xlink:href',
+
+    };
+
+    // Liste des valeurs des TopicCategories
+    var MD_TopicCategoryCode = {
+        farming: "Agriculture",
+        biota: "Flore et faune", 
+        boundaries: "Limites politiques et administratives", 
+        climatologyMeteorologyAtmosphere: "Climatologie, météorologie", 
+        economy: "Economie", 
+        elevation: "Topographie", 
+        environnement: "Ressources et gestion de l’environnement", 
+        geoscientificInformation: "Géosciences", 
+        health: "Santé", 
+        imageryBaseMapsEarthCover: "Carte de référence de la couverture terrestre", 
+        intelligenceMilitary: "Infrastructures militaires", 
+        inlandWaters: "Hydrographie", 
+        location: "Localisant", 
+        oceans: "Océans", 
+        planningCadastre: "Planification et aménagement du territoire", 
+        society: "Société", 
+        structure: "Aménagements urbains", 
+        transportation: "Infrastructures de transport", 
+        utilitiesCommunication: "Réseaux de télécommunication, d’énergie"
+    };
+
+//});
