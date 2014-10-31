@@ -1,22 +1,19 @@
-# wmsReaderJS
+# cswReaderJS
 
 TODO:
     - Etudier problème de pagination avec Uikit v2.10.0
 
 
-## Version. 0.01:
+# Version. 0.04:
 
-30/10/14:
-    - Mise en place de la pagination
-    - Ajout de la possibilité d'effectuer des recherches sur le titre, le nom ou le résumé d'un layer
-    - Ajout d'une fenêtre de dialogue pour afficheir les détails d'un layer
-
-29/10/14:
-    - Récupération du Extent dans le GetCapabilities pour générer le GetMap de la miniature
-
-00/10/14:
-    - Ajout d'un bouton pour visualiser la description du service web via une boîte de dialogue
-    - Ajout d'un GetMap pour générer une miniature
+30/09/14:
+    - Ajout du csw comme paramètre dans l'url. 
+        Dans ce cas, le paramètre se surimpose au choix d'une url dans la liste proposée. Il est alors conseillé de désactiver la liste en indiquant dans config.js "csw_list = { csw: '' };".
+        Possibilité de changer se comportement en ajoutant "param_csw = '';" après le blockd e condition "if (param_csw) { ... }" dans cswReader.js (ligne 151 environ).
+    - Retour à la version 2.8.0 de Ukit car problèmes de pagination avec la version 2.10...
         
-02/10/14:
-    - Initialisation du projet à partir de cswReaderJS
+29/09/14:
+    - Initialisation de la version 0.04
+    - Mise à jur de Uikit 2.8.0 vers 2.10.0
+    - Ajout de l'url du flux CSW à côté du titre
+    - Ajout d'un champ texte de saisie dans la liste de flux pour spécifier un flux non préconfiguré
